@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1B4F8A" />
+  <meta name="description" content="CasaRD – Alquileres en República Dominicana 🇩🇴" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- CSS — en este orden exacto, nunca cambiar -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <title>CasaRD 🏡</title>
+
+  <!-- Estilos de la página Bienvenida (inline para carga rápida) -->
+  <style>
+    /* ── PÁGINA BIENVENIDA ── */
+    .bienvenida {
+      min-height: 100vh;
+      background: linear-gradient(170deg, #080F1C 0%, #0D1F35 45%, #132B50 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 28px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .bv-orb1 {
+      position: absolute; top: -100px; right: -100px;
+      width: 280px; height: 280px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,166,35,0.18), transparent 70%);
+      pointer-events: none;
+    }
+    .bv-orb2 {
+      position: absolute; bottom: 80px; left: -80px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(27,79,138,0.3), transparent 70%);
+      pointer-events: none;
+    }
+    .bv-logo {
+      width: 90px; height: 90px; border-radius: 26px;
+      background: linear-gradient(135deg, #F5A623, #E85D3A);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.6rem; margin-bottom: 22px;
+      box-shadow: 0 20px 50px rgba(245,166,35,0.3);
+      position: relative; z-index: 2;
+    }
+    .bv-titulo {
+      font-family: 'Fraunces', serif;
+      color: white; font-size: 2.8rem; font-weight: 900;
+      letter-spacing: -1.5px; margin-bottom: 6px;
+      position: relative; z-index: 2;
+    }
+    .bv-subtitulo {
+      color: #F5A623; font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      margin-bottom: 18px; position: relative; z-index: 2;
+    }
+    .bv-desc {
+      color: rgba(255,255,255,0.5); font-size: 0.85rem;
+      line-height: 1.7; margin-bottom: 32px;
+      position: relative; z-index: 2;
+    }
+    .bv-trust {
+      display: flex; gap: 24px; margin-bottom: 36px;
+      position: relative; z-index: 2;
+    }
+    .bv-trust-item { text-align: center; }
+    .bv-trust-n {
+      font-family: 'Fraunces', serif;
+      color: #F5A623; font-size: 1.2rem;
+      font-weight: 700; display: block;
+    }
+    .bv-trust-l { color: rgba(255,255,255,0.35); font-size: 0.6rem; }
+    .bv-trust-div { width: 1px; background: rgba(255,255,255,0.1); align-self: stretch; }
+    .bv-acciones {
+      width: 100%; display: flex; flex-direction: column;
+      gap: 10px; position: relative; z-index: 2;
+    }
+    .bv-btn-login {
+      color: rgba(255,255,255,0.65) !important;
+      border-color: rgba(255,255,255,0.18) !important;
+    }
+    .bv-legal {
+      color: rgba(255,255,255,0.22); font-size: 0.62rem;
+      line-height: 1.7; margin-top: 16px;
+      position: relative; z-index: 2;
+    }
+    .bv-legal u { color: #F5A623; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENEDOR PRINCIPAL
+       El router inyecta la página activa aquí.
+       ⚠️ No mover ni renombrar este div.
+  ════════════════════════════════════════════ -->
+  <div id="app" class="no-nav">
+    <div id="page-container">
+      <!-- Pantalla inicial mientras carga -->
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1F35;flex-direction:column;gap:16px">
+        <div style="font-size:3rem">🏡</div>
+        <p style="color:rgba(255,255,255,0.4);font-size:0.82rem;font-family:sans-serif">Iniciando CasaRD…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       BARRA DE NAVEGACIÓN INFERIOR
+       Oculta en Bienvenida y Registro
+  ════════════════════════════════════════════ -->
+  <nav id="bottom-nav" class="bottom-nav hidden">
+    <button class="nav-item" data-page="explorar">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-item" data-page="buscar">
+      <span class="nav-icon">🔍</span>
+      <span class="nav-label">Buscar</span>
+    </button>
+    <button class="nav-fab" data-page="publicar">＋</button>
+    <button class="nav-item" data-page="mensajes">
+      <span class="nav-icon">💬</span>
+      <span class="nav-label">Mensajes</span>
+      <span class="nav-badge hidden" id="badge-mensajes">0</span>
+    </button>
+    <button class="nav-item" data-page="perfil">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Perfil</span>
+    </button>
+  </nav>
+
+  <!-- Toast de notificaciones -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Loader global -->
+  <div id="loader" class="loader hidden">
+    <div class="loader-spinner"></div>
+    <p class="loader-text">Cargando…</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCRIPTS — ORDEN OBLIGATORIO
+       1. Firebase SDK (CDN)
+       2. Nuestros archivos JS
+       3. Páginas
+       4. App (arranca todo — siempre el último)
+  ════════════════════════════════════════════ -->
+
+  <!-- Firebase SDK desde CDN (no necesita instalación) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <!-- Núcleo de la app -->
+  <script src="js/firebase.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/router.js"></script>
+
+  <!-- Páginas (una por archivo) -->
+  <script src="pages/bienvenida.js"></script>
+  <script src="pages/explorar.js"></script>
+  <script src="pages/detalle.js"></script>
+  <script src="pages/publicar.js"></script>
+  <script src="pages/mensajes.js"></script>
+  <script src="pages/chat.js"></script>
+  <script src="pages/perfil.js"></script>
+
+  <!-- App — siempre el último script -->
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker — hace la app instalable -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+
+</body>
+</html>
