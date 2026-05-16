@@ -1,0 +1,86 @@
+/* ═══════════════════════════════════════════════════
+   CASARD — VARIABLES GLOBALES
+   ─────────────────────────────────────────────────
+   Este es el ÚNICO lugar donde se definen colores,
+   tipografías y espaciados.
+
+   ⚠️  REGLA DE ORO:
+   Si quieres cambiar un color de la app,
+   cámbialo SOLO aquí — se actualiza en toda la app.
+════════════════════════════════════════════════════ */
+
+:root {
+
+  /* ── COLORES PRINCIPALES ── */
+  --azul:          #1B4F8A;   /* color principal de CasaRD   */
+  --azul-claro:    #2563EB;   /* azul más vivo para botones  */
+  --azul-bg:       #EBF3FF;   /* fondo azul suave            */
+
+  --dorado:        #F5A623;   /* acento dorado               */
+  --dorado-claro:  #FCD34D;   /* dorado más claro            */
+  --dorado-bg:     #FFF8EB;   /* fondo dorado suave          */
+
+  --coral:         #E85D3A;   /* alertas y etiquetas         */
+  --coral-bg:      #FFF0EE;   /* fondo coral suave           */
+
+  --verde:         #10B981;   /* confirmación y verificado   */
+  --verde-bg:      #EBFFF3;   /* fondo verde suave           */
+
+  --whatsapp:      #25D366;   /* botón WhatsApp              */
+  --whatsapp-bg:   rgba(37, 211, 102, 0.08);
+
+  /* ── COLORES NEUTROS ── */
+  --oscuro:        #0D1F35;   /* texto principal             */
+  --oscuro-2:      #1B3A6B;   /* oscuro secundario           */
+  --gris:          #64748B;   /* texto secundario            */
+  --gris-claro:    #94A3B8;   /* texto terciario             */
+  --borde:         #E2EAF4;   /* bordes suaves               */
+  --crema:         #FBF7F0;   /* fondo cálido                */
+  --fondo:         #F5F7FB;   /* fondo general de páginas    */
+  --blanco:        #FFFFFF;
+
+  /* ── TIPOGRAFÍAS ── */
+  --font-titulo:   'Fraunces', Georgia, serif;
+  --font-cuerpo:   'DM Sans', system-ui, sans-serif;
+
+  /* ── TAMAÑOS DE TEXTO ── */
+  --text-xs:    0.65rem;   /*  10px — etiquetas pequeñas  */
+  --text-sm:    0.75rem;   /*  12px — texto secundario    */
+  --text-base:  0.875rem;  /*  14px — texto principal     */
+  --text-md:    1rem;      /*  16px — texto grande        */
+  --text-lg:    1.25rem;   /*  20px — subtítulos          */
+  --text-xl:    1.5rem;    /*  24px — títulos             */
+  --text-2xl:   2rem;      /*  32px — títulos grandes     */
+  --text-3xl:   2.5rem;    /*  40px — hero                */
+
+  /* ── ESPACIADOS ── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+
+  /* ── BORDES REDONDEADOS ── */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ── SOMBRAS ── */
+  --shadow-sm:  0 2px 8px rgba(27, 79, 138, 0.08);
+  --shadow-md:  0 4px 20px rgba(27, 79, 138, 0.12);
+  --shadow-lg:  0 10px 40px rgba(27, 79, 138, 0.18);
+  --shadow-fab: 0 8px 22px rgba(245, 166, 35, 0.4);
+
+  /* ── TRANSICIONES ── */
+  --transition: 0.22s ease;
+
+  /* ── ALTURA BARRA NAVEGACIÓN ── */
+  --nav-height: 74px;
+}
