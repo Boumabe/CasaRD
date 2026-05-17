@@ -1,54 +1,46 @@
 /* ═══════════════════════════════════════════════════
    CASARD — SERVICE WORKER
-   Rend l'app installable sur Android et iPhone.
-   Cache les fichiers pour fonctionner sans internet.
+   Hace la app instalable en Android e iPhone.
 ════════════════════════════════════════════════════ */
+var CACHE = 'casard-v2';
 
-const CACHE_NAME = 'casard-v1';
-
-const ARCHIVOS_CACHE = [
+var ARCHIVOS = [
   '/',
   '/index.html',
-  '/css/variables.css',
-  '/css/base.css',
-  '/css/components.css',
-  '/css/layout.css',
-  '/js/firebase.js',
-  '/js/utils.js',
-  '/js/auth.js',
-  '/js/router.js',
+  '/js/datos.js',
+  '/js/paginas.js',
   '/js/app.js',
-  '/pages/bienvenida.js',
-  '/pages/explorar.js',
-  '/pages/detalle.js',
-  '/pages/publicar.js',
-  '/pages/mensajes.js',
-  '/pages/chat.js',
-  '/pages/perfil.js',
   '/manifest.json',
 ];
 
-/* Instalar — guardar archivos en caché */
-self.addEventListener('install', (e) => {
+/* Instalar */
+self.addEventListener('install', function(e) {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ARCHIVOS_CACHE))
+    caches.open(CACHE).then(function(cache) {
+      return cache.addAll(ARCHIVOS);
+    })
   );
   self.skipWaiting();
 });
 
-/* Activar — limpiar caché viejo */
-self.addEventListener('activate', (e) => {
+/* Activar — borrar caché viejo */
+self.addEventListener('activate', function(e) {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.filter(function(k) { return k !== CACHE; })
+            .map(function(k)   { return caches.delete(k); })
+      );
+    })
   );
   self.clients.claim();
 });
 
-/* Fetch — responder con caché si no hay internet */
-self.addEventListener('fetch', (e) => {
+/* Fetch — caché primero, luego red */
+self.addEventListener('fetch', function(e) {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(function(cached) {
+      return cached || fetch(e.request);
+    })
   );
 });
