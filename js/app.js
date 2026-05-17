@@ -88,17 +88,17 @@ function ir(pagina, params) {
    ARRANQUE DE LA APP
    Se ejecuta cuando el DOM está listo
 ══════════════════════════════ */
-document.addEventListener('DOMContentLoaded', function() {
+/* ══════════════════════════════
+   ARRANQUE — llamada directa
+   Scripts al final del body =
+   DOM ya listo = llamar directo
+══════════════════════════════ */
+(function() {
   console.log('🏡 CasaRD iniciando…');
-
-  /* Si hay usuario guardado → explorar, si no → bienvenida */
   if (S.usuario) {
-    console.log('✅ Sesión activa:', S.usuario.email);
     ir('explorar');
   } else {
-    console.log('👋 Sin sesión — mostrando bienvenida');
     ir('bienvenida');
   }
-
   console.log('✅ CasaRD lista');
-});
+})();
