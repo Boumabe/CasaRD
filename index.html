@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-DO">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#1B4F8A"/>
-<meta name="description" content="CasaRD – Alquileres en República Dominicana 🇩🇴"/>
-<link rel="manifest" href="manifest.json"/>
-<title>CasaRD 🏡</title>
+<meta name="description" content="CasaRD Prime – marketplace de alquileres adaptado al mercado dominicano, con precios en RD$, zonas clave y contacto directo por WhatsApp."/>
+<meta property="og:title" content="CasaRD Prime"/>
+<meta property="og:description" content="Plataforma de alquileres para República Dominicana con enfoque profesional y local."/>
+<meta property="og:type" content="website"/>
+<title>CasaRD Prime | Alquileres en República Dominicana</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 /* ══ RESET ══ */
@@ -246,6 +248,24 @@ img{max-width:100%;display:block;object-fit:cover}
 
 /* ══ UTILS ══ */
 .pb-nav{padding-bottom:var(--nav-h)}
+.meta-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.meta-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#F5F7FB;border:1px solid var(--borde);font-size:.64rem;font-weight:700;color:var(--oscuro)}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.kpi-card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;gap:3px;backdrop-filter:blur(8px)}
+.kpi-number{font-family:var(--font-t);font-size:.96rem;color:white;font-weight:800;line-height:1.15}
+.kpi-label{font-size:.6rem;color:rgba(255,255,255,.62);line-height:1.35}
+.soft-card{background:white;border:1px solid var(--borde);border-radius:18px;padding:14px 15px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+.soft-title{font-size:.7rem;font-weight:800;color:var(--azul);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.soft-copy{font-size:.74rem;color:var(--gris);line-height:1.65}
+.city-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.city-card{background:white;border:1px solid var(--borde);border-radius:16px;padding:14px;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+.city-name{font-size:.82rem;font-weight:800;color:var(--oscuro);margin-bottom:4px}
+.city-copy{font-size:.7rem;color:var(--gris);line-height:1.55}
+.empty-state{text-align:center;padding:40px 18px;background:white;border:1px solid var(--borde);border-radius:18px}
+.empty-title{font-weight:800;color:var(--oscuro);margin:10px 0 4px}
+.empty-copy{font-size:.74rem;color:var(--gris);line-height:1.6}
+.cta-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.cta-stack{grid-template-columns:1fr}.kpi-row{grid-template-columns:1fr 1fr 1fr}.city-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -254,7 +274,7 @@ img{max-width:100%;display:block;object-fit:cover}
   <div id="page">
     <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1F35;flex-direction:column;gap:16px">
       <div style="font-size:3rem">🏡</div>
-      <p style="color:rgba(255,255,255,.4);font-size:.82rem">Iniciando CasaRD…</p>
+      <p style="color:rgba(255,255,255,.4);font-size:.82rem">Iniciando CasaRD Prime…</p>
     </div>
   </div>
 </div>
@@ -262,12 +282,12 @@ img{max-width:100%;display:block;object-fit:cover}
 <!-- NAV -->
 <nav class="bnav oculto" id="bnav">
   <div class="ni" id="ni-inicio" onclick="ir('explorar')">
-    <span class="ni-ic">🏠</span><span class="ni-lb">Inicio</span>
+    <span class="ni-ic">🏠</span><span class="ni-lb">Explorar</span>
   </div>
   <div class="ni" onclick="ir('explorar')">
-    <span class="ni-ic">🔍</span><span class="ni-lb">Buscar</span>
+    <span class="ni-ic">🔍</span><span class="ni-lb">Mercado</span>
   </div>
-  <button class="n-fab" onclick="ir('publicar')">＋</button>
+  <button class="n-fab" onclick="ir('publicar')" aria-label="Publicar propiedad">＋</button>
   <div class="ni" id="ni-mensajes" onclick="ir('mensajes')">
     <span class="ni-ic">💬</span><span class="ni-lb">Mensajes</span>
   </div>
@@ -302,14 +322,6 @@ img{max-width:100%;display:block;object-fit:cover}
 <!-- 4. App + Router — SIEMPRE EL ÚLTIMO -->
 <script src="js/app.js"></script>
 
-<!-- Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js').catch(function(){});
-  });
-}
-</script>
 
 </body>
 </html>
