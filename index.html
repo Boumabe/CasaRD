@@ -660,48 +660,74 @@ img{max-width:100%;display:block;object-fit:cover}
 
 <!-- BOTTOM NAV -->
 <nav class="bnav oculto" id="bnav">
+
   <!-- Inicio -->
   <div class="ni" id="ni-inicio" onclick="ir('explorar')">
     <span class="ni-ic">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
       </svg>
     </span>
     <span class="ni-lb">Inicio</span>
   </div>
-  <!-- Buscar -->
-  <div class="ni" id="ni-buscar" onclick="ir('explorar')">
-    <span class="ni-ic">
+
+  <!-- Avisos del Barrio -->
+  <div class="ni" id="ni-avisos" onclick="ir('avisos')" style="position:relative">
+    <span class="ni-ic" style="position:relative">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        <path d="M3 11l19-9-9 19-2-8-8-2z"/>
       </svg>
+      <!-- Punto rojo "nuevo" -->
+      <span id="ni-avisos-dot" style="
+        position:absolute;top:-2px;right:-2px;
+        width:8px;height:8px;border-radius:50%;
+        background:#E85D3A;border:1.5px solid white;
+        display:block;
+      "></span>
     </span>
-    <span class="ni-lb">Buscar</span>
+    <span class="ni-lb">Barrio</span>
   </div>
-  <!-- FAB Publicar -->
+
+  <!-- FAB Publicar — centro -->
   <button class="n-fab" onclick="ir('publicar')" aria-label="Publicar propiedad">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
     </svg>
   </button>
+
   <!-- Mensajes -->
-  <div class="ni" id="ni-mensajes" onclick="ir('mensajes')">
-    <span class="ni-ic">
+  <div class="ni" id="ni-mensajes" onclick="ir('mensajes')" style="position:relative">
+    <span class="ni-ic" style="position:relative">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
+      <!-- Badge mensajes non lus -->
+      <span id="ni-msg-badge" style="
+        position:absolute;top:-4px;right:-6px;
+        background:#E85D3A;color:white;
+        font-size:.48rem;font-weight:800;
+        width:14px;height:14px;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        border:1.5px solid white;
+        display:none;
+      ">3</span>
     </span>
     <span class="ni-lb">Mensajes</span>
   </div>
+
   <!-- Perfil -->
   <div class="ni" id="ni-perfil" onclick="ir('perfil')">
     <span class="ni-ic">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
       </svg>
     </span>
     <span class="ni-lb">Perfil</span>
   </div>
+
 </nav>
 
 <!-- TOAST -->
