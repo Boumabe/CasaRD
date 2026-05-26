@@ -72,7 +72,8 @@ function activarNav(pagina) {
     var el = document.getElementById(id);
     if (!el) return;
     el.classList.remove('on');
-    var svg = el.querySelector('svg');
+    /* BUG7 FIX — cibler le SVG à l'intérieur de .ni-ic */
+    var svg = el.querySelector('.ni-ic svg');
     if (svg) svg.setAttribute('stroke', '#94A3B8');
     var lb = el.querySelector('.ni-lb');
     if (lb) { lb.style.color = ''; lb.style.fontWeight = ''; }
@@ -95,7 +96,8 @@ function activarNav(pagina) {
   var el = document.getElementById(targetId);
   if (!el) return;
   el.classList.add('on');
-  var svg = el.querySelector('svg');
+  /* BUG7 FIX */
+  var svg = el.querySelector('.ni-ic svg');
   if (svg) svg.setAttribute('stroke', '#1B4F8A');
   var lb = el.querySelector('.ni-lb');
   if (lb) { lb.style.color = '#1B4F8A'; lb.style.fontWeight = '700'; }
