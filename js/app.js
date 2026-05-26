@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   CASARD — APP.JS  (versión profesional)
+   CASARD — APP.JS  (versión profesional + Avisos)
    Router + arranque + UN SOLO auth listener.
    ⚠️ Siempre el último script en cargar.
 ════════════════════════════════════════════════════ */
@@ -7,15 +7,18 @@
 var SIN_NAV = ['bienvenida','registro','login'];
 
 var PAGINAS_MAP = {
-  bienvenida: pagBienvenida,
-  registro:   pagRegistro,
-  login:      pagLogin,
-  explorar:   pagExplorar,
-  detalle:    pagDetalle,
-  publicar:   pagPublicar,
-  mensajes:   pagMensajes,
-  chat:       pagChat,
-  perfil:     pagPerfil,
+  bienvenida:   pagBienvenida,
+  registro:     pagRegistro,
+  login:        pagLogin,
+  explorar:     pagExplorar,
+  detalle:      pagDetalle,
+  publicar:     pagPublicar,
+  mensajes:     pagMensajes,
+  chat:         pagChat,
+  perfil:       pagPerfil,
+  avisos:       pagAvisos,
+  detalleAviso: pagDetalleAviso,
+  nuevoAviso:   pagNuevoAviso,
 };
 
 var MOUNTS_MAP = {
@@ -35,52 +38,67 @@ var MOUNTS_MAP = {
       }
     });
   },
+  avisos: function() {
+    cargarAvisos(function(lista) {
+      var feed = document.getElementById('feed-avisos');
+      if (feed) feed.innerHTML = lista.map(tarjetaAviso).join('');
+    });
+  },
+  detalleAviso: function() {
+    /* Incrementar vista en Firebase */
+    var pag = S.pagina;
+    if (pag !== 'detalleAviso') return;
+    /* El id lo guardamos en S.avisoActual */
+    if (S.avisoActual) {
+      db.collection('avisos').doc(S.avisoActual)
+        .update({ vistas: firebase.firestore.FieldValue.increment(1) })
+        .catch(function(){});
+      cargarComentarios(S.avisoActual, function(comms) {
+        var lista = document.getElementById('lista-comentarios');
+        if (lista && comms.length) {
+          lista.innerHTML = comms.map(tarjetaComentario).join('');
+        }
+      });
+    }
+  },
 };
 
 /* ══════════════════════════════
    NAV — activar icono SVG
 ══════════════════════════════ */
-var NAV_STROKES = {
-  'ni-inicio':   '#94A3B8',
-  'ni-buscar':   '#94A3B8',
-  'ni-mensajes': '#94A3B8',
-  'ni-perfil':   '#94A3B8',
-};
-
 function activarNav(pagina) {
-  /* Reset todos */
-  ['ni-inicio','ni-buscar','ni-mensajes','ni-perfil'].forEach(function(id) {
+  var ids = ['ni-inicio','ni-avisos','ni-mensajes','ni-perfil'];
+  ids.forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     el.classList.remove('on');
     var svg = el.querySelector('svg');
     if (svg) svg.setAttribute('stroke', '#94A3B8');
     var lb = el.querySelector('.ni-lb');
-    if (lb) lb.style.color = '';
+    if (lb) { lb.style.color = ''; lb.style.fontWeight = ''; }
   });
 
-  /* Mapa pagina → nav item */
   var mapaNav = {
-    explorar: 'ni-inicio',
-    detalle:  'ni-inicio',
-    mensajes: 'ni-mensajes',
-    chat:     'ni-mensajes',
-    perfil:   'ni-perfil',
-    publicar: null,
+    explorar:     'ni-inicio',
+    detalle:      'ni-inicio',
+    avisos:       'ni-avisos',
+    detalleAviso: 'ni-avisos',
+    nuevoAviso:   'ni-avisos',
+    mensajes:     'ni-mensajes',
+    chat:         'ni-mensajes',
+    perfil:       'ni-perfil',
+    publicar:     null,
   };
 
   var targetId = mapaNav[pagina];
   if (!targetId) return;
-
   var el = document.getElementById(targetId);
   if (!el) return;
   el.classList.add('on');
-
-  /* Colorear SVG activo */
   var svg = el.querySelector('svg');
   if (svg) svg.setAttribute('stroke', '#1B4F8A');
   var lb = el.querySelector('.ni-lb');
-  if (lb) lb.style.color = '#1B4F8A';
+  if (lb) { lb.style.color = '#1B4F8A'; lb.style.fontWeight = '700'; }
 }
 
 /* ══════════════════════════════
@@ -91,6 +109,28 @@ function ir(pagina, params) {
   if (!PAGINAS_MAP[pagina]) { ir('explorar'); return; }
 
   S.pagina = pagina;
+
+  /* Guardar id del aviso actual para el mount */
+  if (pagina === 'detalleAviso') S.avisoActual = params.id || null;
+
+  /* Ocultar punto rojo de Avisos al visitarlos */
+  if (pagina === 'avisos' || pagina === 'detalleAviso' || pagina === 'nuevoAviso') {
+    var dot = document.getElementById('ni-avisos-dot');
+    if (dot) dot.style.display = 'none';
+  }
+
+  /* Badge de mensajes no leídos */
+  var nrTotal = typeof CONVS !== 'undefined'
+    ? CONVS.reduce(function(s,c){ return s + (c.nr||0); }, 0) : 0;
+  var badge = document.getElementById('ni-msg-badge');
+  if (badge) {
+    if (nrTotal > 0 && pagina !== 'mensajes' && pagina !== 'chat') {
+      badge.textContent = nrTotal > 9 ? '9+' : nrTotal;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
 
   var pg = document.getElementById('page');
   if (!pg) return;
@@ -115,14 +155,12 @@ function ir(pagina, params) {
 (function() {
   console.log('🏡 CasaRD iniciando…');
 
-  /* Mostrar página inicial INMEDIATAMENTE */
   if (S.usuario) {
     ir('explorar');
   } else {
     ir('bienvenida');
   }
 
-  /* Auth listener — actualiza estado cuando Firebase responde */
   fbAuth.onAuthStateChanged(function(user) {
     if (user) {
       S.usuario = {
@@ -133,7 +171,6 @@ function ir(pagina, params) {
       };
       localStorage.setItem('casard_u', JSON.stringify(S.usuario));
       loader(false);
-
       if (SIN_NAV.indexOf(S.pagina) >= 0) {
         ir('explorar');
       }
