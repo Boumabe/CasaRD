@@ -266,6 +266,13 @@ function wa(tel, msg) {
   window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
+/* BUG2 FIX — version pour messages déjà encodés (depuis onclick HTML) */
+function waEncoded(tel, encodedMsg) {
+  var num = String(tel || '').replace(/\D/g, '');
+  if (!num) { toast('Número de WhatsApp no disponible', 'err'); return; }
+  window.open('https://wa.me/' + num + '?text=' + encodedMsg, '_blank');
+}
+
 function iniciales(n) {
   return (n || '?').split(' ').slice(0, 2).map(function(x) {
     return x[0] ? x[0].toUpperCase() : '';
@@ -579,7 +586,9 @@ function enviarComentario(avisoId) {
     if (empty) empty.remove();
     var div = document.createElement('div');
     div.innerHTML = tarjetaComentario(nuevo);
-    lista.appendChild(div.firstChild);
+    /* BUG5 FIX — firstElementChild évite les textNodes vides sur Android */
+    var node = div.firstElementChild || div.firstChild;
+    if (node) lista.appendChild(node);
     lista.scrollTop = lista.scrollHeight;
     inp.value = '';
   }
@@ -633,16 +642,22 @@ function toggleLikeAviso(btn, avisoId) {
 /* ── Toggle like en comentario ── */
 function toggleLikeComentario(btn) {
   var on = btn.getAttribute('data-liked') === '1';
-  var spans = btn.querySelectorAll('span');
-  var n = parseInt(btn.textContent.replace(/\D/g,'')) || 0;
+  var n  = parseInt(btn.getAttribute('data-n') || btn.textContent.replace(/\D/g,'')) || 0;
   on = !on;
   btn.setAttribute('data-liked', on ? '1' : '0');
-  btn.style.color = on ? '#E85D3A' : '#94A3B8';
+  btn.setAttribute('data-n', on ? n + 1 : n - 1);
+  btn.style.color      = on ? '#E85D3A' : '#94A3B8';
   btn.style.fontWeight = on ? '700' : '400';
-  if (spans[0]) spans[0].style.color = on ? '#E85D3A' : '#94A3B8';
-  /* Actualizar número en el texto del botón */
-  var newN = on ? n + 1 : n - 1;
-  btn.innerHTML = ICO.like + ' ' + newN;
+  /* BUG4 FIX — mettre à jour uniquement le dernier textNode, pas innerHTML */
+  var nodes = btn.childNodes;
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    if (nodes[i].nodeType === 3) { /* TEXT_NODE */
+      nodes[i].textContent = ' ' + (on ? n + 1 : n - 1);
+      break;
+    }
+  }
+  var svgEl = btn.querySelector('svg');
+  if (svgEl) svgEl.setAttribute('stroke', on ? '#E85D3A' : '#94A3B8');
 }
 
 /* ── Compartir aviso ── */
