@@ -438,3 +438,329 @@ function submitPublicar() {
     comod:    comodSelec,
   }, inpFoto ? Array.from(inpFoto.files || []) : []);
 }
+
+/* ══════════════════════════════════════════════════════════
+   AVISOS DEL BARRIO — Firebase + utilidades
+══════════════════════════════════════════════════════════ */
+
+/* ── Cargar avisos desde Firebase ── */
+function cargarAvisos(cb) {
+  db.collection('avisos')
+    .orderBy('creadoEn', 'desc')
+    .limit(40)
+    .get()
+    .then(function(snap) {
+      var lista = [];
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        lista.push({
+          id:          doc.id,
+          tipo:        d.tipo        || 'visto',
+          titulo:      d.titulo      || '',
+          desc:        d.desc        || '',
+          barrio:      d.barrio      || '',
+          ciudad:      d.ciudad      || '',
+          autor:       d.autorNombre || 'Anónimo',
+          autorId:     d.autorId     || '',
+          foto:        d.foto        || '',
+          hora:        tiempoRelativo(d.creadoEn),
+          likes:       d.likes       || 0,
+          vistas:      d.vistas      || 0,
+          comentarios: d.comentarios || 0,
+          likedByMe:   false,
+          grad:        gradAvisoTipo(d.tipo),
+        });
+      });
+      S.avisos = lista.length > 0 ? lista : AVISOS_DEMO;
+      if (cb) cb(S.avisos);
+    })
+    .catch(function() {
+      S.avisos = AVISOS_DEMO;
+      if (cb) cb(S.avisos);
+    });
+}
+
+/* ── Cargar comentarios de un aviso ── */
+function cargarComentarios(avisoId, cb) {
+  db.collection('avisos').doc(avisoId)
+    .collection('comentarios')
+    .orderBy('creadoEn', 'asc')
+    .get()
+    .then(function(snap) {
+      var lista = [];
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        lista.push({
+          id:        doc.id,
+          autor:     d.autorNombre || 'Anónimo',
+          autorId:   d.autorId     || '',
+          grad:      d.autorGrad   || 'linear-gradient(135deg,#1B4F8A,#E8A020)',
+          hora:      tiempoRelativo(d.creadoEn),
+          texto:     d.texto       || '',
+          likes:     d.likes       || 0,
+          likedByMe: false,
+        });
+      });
+      if (!S.comentarios) S.comentarios = {};
+      S.comentarios[avisoId] = lista.length > 0 ? lista : (COMENTARIOS_DEMO[avisoId] || []);
+      if (cb) cb(S.comentarios[avisoId]);
+    })
+    .catch(function() {
+      if (!S.comentarios) S.comentarios = {};
+      S.comentarios[avisoId] = COMENTARIOS_DEMO[avisoId] || [];
+      if (cb) cb(S.comentarios[avisoId]);
+    });
+}
+
+/* ── Publicar aviso en Firebase ── */
+function publicarAviso(datos, fotoFile) {
+  if (!S.usuario) { toast('Inicia sesión para publicar', 'err'); ir('login'); return; }
+  loader(true, 'Publicando aviso…');
+
+  var subirFoto = fotoFile
+    ? (function() {
+        var ref = store.ref('avisos/' + S.usuario.uid + '/' + Date.now());
+        return ref.put(fotoFile).then(function() { return ref.getDownloadURL(); });
+      })()
+    : Promise.resolve('');
+
+  subirFoto
+    .then(function(fotoUrl) {
+      return db.collection('avisos').add({
+        tipo:        datos.tipo,
+        titulo:      datos.titulo,
+        desc:        datos.desc,
+        barrio:      datos.barrio,
+        ciudad:      datos.ciudad,
+        foto:        fotoUrl,
+        autorId:     S.usuario.uid,
+        autorNombre: S.usuario.nombre,
+        autorGrad:   'linear-gradient(135deg,#1B4F8A,#E8A020)',
+        likes:       0,
+        vistas:      0,
+        comentarios: 0,
+        creadoEn:    firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    })
+    .then(function(ref) {
+      loader(false);
+      toast('¡Aviso publicado! La comunidad lo verá ahora 🏘️', 'ok');
+      S.avisos = [];
+      ir('avisos');
+    })
+    .catch(function(err) {
+      loader(false);
+      console.error(err);
+      toast('Error al publicar. Verifica tu conexión.', 'err');
+    });
+}
+
+/* ── Enviar comentario en Firebase ── */
+function enviarComentario(avisoId) {
+  if (!S.usuario) { toast('Inicia sesión para comentar', 'err'); return; }
+  var inp = document.getElementById('inp-comentario');
+  if (!inp || !inp.value.trim()) { toast('Escribe tu comentario', 'err'); return; }
+  var txt = inp.value.trim();
+
+  /* Optimistic UI — agregar burbuja inmediatamente */
+  var lista = document.getElementById('lista-comentarios');
+  if (lista) {
+    var nuevo = {
+      id: 'tmp_' + Date.now(),
+      autor:     S.usuario.nombre,
+      grad:      'linear-gradient(135deg,#1B4F8A,#E8A020)',
+      hora:      'Ahora',
+      texto:     txt,
+      likes:     0,
+      likedByMe: false,
+    };
+    /* Remover empty state si existe */
+    var empty = lista.querySelector('p');
+    if (empty) empty.remove();
+    var div = document.createElement('div');
+    div.innerHTML = tarjetaComentario(nuevo);
+    lista.appendChild(div.firstChild);
+    lista.scrollTop = lista.scrollHeight;
+    inp.value = '';
+  }
+
+  /* Persistir en Firebase */
+  var batch = db.batch();
+  var cRef  = db.collection('avisos').doc(avisoId).collection('comentarios').doc();
+  batch.set(cRef, {
+    texto:       txt,
+    autorId:     S.usuario.uid,
+    autorNombre: S.usuario.nombre,
+    autorGrad:   'linear-gradient(135deg,#1B4F8A,#E8A020)',
+    likes:       0,
+    creadoEn:    firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  /* Incrementar contador del aviso */
+  batch.update(db.collection('avisos').doc(avisoId), {
+    comentarios: firebase.firestore.FieldValue.increment(1),
+  });
+  batch.commit().catch(function() {
+    toast('Error al enviar. Intenta de nuevo.', 'err');
+  });
+}
+
+/* ── Toggle like en aviso ── */
+function toggleLikeAviso(btn, avisoId) {
+  var todos = S.avisos && S.avisos.length ? S.avisos : AVISOS_DEMO;
+  var a = todos.filter(function(x){ return x.id === avisoId; })[0];
+  if (!a) return;
+
+  a.likedByMe = !a.likedByMe;
+  a.likes += a.likedByMe ? 1 : -1;
+
+  /* Actualizar UI del botón */
+  var spans = btn.querySelectorAll('span');
+  var color = a.likedByMe ? '#E85D3A' : '#94A3B8';
+  btn.style.color = color;
+  btn.style.fontWeight = a.likedByMe ? '700' : '500';
+  if (spans[0]) spans[0].style.color = color;
+  /* Actualizar número — puede estar en el botón o en #det-like-n */
+  var nEl = btn.querySelector('#det-like-n') || spans[1];
+  if (nEl) nEl.textContent = a.likes;
+
+  /* Persistir */
+  if (!S.usuario) return;
+  var ref   = db.collection('avisos').doc(avisoId);
+  var delta = a.likedByMe ? 1 : -1;
+  ref.update({ likes: firebase.firestore.FieldValue.increment(delta) }).catch(function(){});
+}
+
+/* ── Toggle like en comentario ── */
+function toggleLikeComentario(btn) {
+  var on = btn.getAttribute('data-liked') === '1';
+  var spans = btn.querySelectorAll('span');
+  var n = parseInt(btn.textContent.replace(/\D/g,'')) || 0;
+  on = !on;
+  btn.setAttribute('data-liked', on ? '1' : '0');
+  btn.style.color = on ? '#E85D3A' : '#94A3B8';
+  btn.style.fontWeight = on ? '700' : '400';
+  if (spans[0]) spans[0].style.color = on ? '#E85D3A' : '#94A3B8';
+  /* Actualizar número en el texto del botón */
+  var newN = on ? n + 1 : n - 1;
+  btn.innerHTML = ICO.like + ' ' + newN;
+}
+
+/* ── Compartir aviso ── */
+function compartirAviso(id) {
+  var url = window.location.origin + '?aviso=' + id;
+  if (navigator.share) {
+    navigator.share({
+      title: 'CasaRD – Aviso del barrio',
+      text:  '¡Mira este aviso en CasaRD! 🏘️🇩🇴',
+      url:   url,
+    }).catch(function(){});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      toast('¡Enlace copiado! 📋', 'ok');
+    });
+  } else {
+    toast('Enlace copiado: ' + url, 'info', 4000);
+  }
+}
+
+/* ── Filtrar feed de avisos ── */
+function filtrarAvisos(txt) {
+  var feed = document.getElementById('feed-avisos');
+  if (!feed) return;
+  var todos = S.avisos && S.avisos.length ? S.avisos : AVISOS_DEMO;
+  var t = (txt || '').toLowerCase();
+  var r = t
+    ? todos.filter(function(a) {
+        return a.titulo.toLowerCase().indexOf(t) >= 0 ||
+               a.barrio.toLowerCase().indexOf(t) >= 0 ||
+               a.ciudad.toLowerCase().indexOf(t) >= 0 ||
+               a.desc.toLowerCase().indexOf(t)   >= 0;
+      })
+    : todos;
+  feed.innerHTML = r.length
+    ? r.map(tarjetaAviso).join('')
+    : '<div style="text-align:center;padding:50px 20px">'
+      +'<div style="font-size:2.5rem;margin-bottom:12px">🔍</div>'
+      +'<p style="font-weight:700;font-size:.86rem;color:#0B1E38;margin-bottom:6px">Sin resultados</p>'
+      +'<p style="color:#94A3B8;font-size:.74rem">No encontramos avisos para "'+txt+'"</p>'
+      +'</div>';
+}
+
+/* ── Selector tipo aviso (formulario) ── */
+function selTipoAviso(tipo) {
+  var v = document.getElementById('tipo-visto');
+  var b = document.getElementById('tipo-busco');
+  if (!v || !b) return;
+  if (tipo === 'visto') {
+    v.style.background  = 'rgba(16,185,129,.18)';
+    v.style.borderColor = 'rgba(16,185,129,.55)';
+    b.style.background  = 'rgba(255,255,255,.06)';
+    b.style.borderColor = 'rgba(255,255,255,.1)';
+  } else {
+    b.style.background  = 'rgba(27,79,138,.22)';
+    b.style.borderColor = 'rgba(37,99,235,.5)';
+    v.style.background  = 'rgba(255,255,255,.06)';
+    v.style.borderColor = 'rgba(255,255,255,.1)';
+  }
+  /* Guardar selección en atributo */
+  document.getElementById('tipo-visto').setAttribute('data-sel', tipo === 'visto' ? '1' : '0');
+}
+
+/* ── Vista previa foto aviso ── */
+function prevAviso(input) {
+  var prev = document.getElementById('av-foto-prev');
+  if (!prev || !input.files || !input.files[0]) return;
+  var r = new FileReader();
+  r.onload = function(e) {
+    prev.innerHTML = '<div style="position:relative;display:inline-block">'
+      +'<img src="'+e.target.result+'" style="width:100%;max-height:180px;border-radius:16px;border:2px solid #DDE5F0;object-fit:cover;display:block"/>'
+      +'<button onclick="this.parentElement.remove();document.getElementById(\'av-foto-input\').value=\'\'" style="position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:#0B1E38;color:white;font-size:.75rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)">×</button>'
+      +'</div>';
+  };
+  r.readAsDataURL(input.files[0]);
+}
+
+/* ── Submit formulario nuevo aviso ── */
+function submitAviso() {
+  var titulo  = document.getElementById('av-titulo');
+  var ciudad  = document.getElementById('av-ciudad');
+  var barrio  = document.getElementById('av-barrio');
+  var desc    = document.getElementById('av-desc');
+  var fotoInp = document.getElementById('av-foto-input');
+  var tipoV   = document.getElementById('tipo-visto');
+  var tipo    = (tipoV && tipoV.getAttribute('data-sel') === '0') ? 'busco' : 'visto';
+
+  if (!titulo || !titulo.value.trim())  { toast('Escribe un título', 'err');    return; }
+  if (!ciudad || !ciudad.value.trim())  { toast('Escribe la ciudad', 'err');    return; }
+  if (!barrio || !barrio.value.trim())  { toast('Escribe el barrio o sector', 'err'); return; }
+  if (!desc   || !desc.value.trim())    { toast('Escribe la descripción', 'err'); return; }
+  if (desc.value.trim().length < 20)    { toast('La descripción es muy corta — añade más detalles', 'err'); return; }
+
+  publicarAviso({
+    tipo:   tipo,
+    titulo: titulo.value.trim(),
+    desc:   desc.value.trim(),
+    ciudad: ciudad.value.trim(),
+    barrio: barrio.value.trim(),
+  }, fotoInp && fotoInp.files && fotoInp.files[0] ? fotoInp.files[0] : null);
+}
+
+/* ── Helpers ── */
+function tiempoRelativo(ts) {
+  if (!ts) return 'Ahora';
+  try {
+    var d   = ts.toDate ? ts.toDate() : new Date(ts);
+    var dif = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (dif < 60)     return 'Hace ' + dif + 's';
+    if (dif < 3600)   return 'Hace ' + Math.floor(dif/60) + 'm';
+    if (dif < 86400)  return 'Hace ' + Math.floor(dif/3600) + 'h';
+    if (dif < 604800) return 'Hace ' + Math.floor(dif/86400) + ' días';
+    return d.toLocaleDateString('es-DO', { day:'numeric', month:'short' });
+  } catch(e) { return 'Reciente'; }
+}
+
+function gradAvisoTipo(tipo) {
+  return tipo === 'busco'
+    ? 'linear-gradient(135deg,#C8DFFB,#82B8E8)'
+    : 'linear-gradient(135deg,#C8FBE8,#70D4A8)';
+     }
