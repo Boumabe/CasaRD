@@ -25,6 +25,16 @@ var ICO = {
   cal:  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
   home2:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
   fav:  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  /* ── Avisos del barrio ── */
+  eye:     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  chat2:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  like:    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>',
+  share:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>',
+  flag:    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+  imgico:  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+  search2: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+  plus2:   '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  megafono:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>',
 };
 
 /* ══════════════════════════════
@@ -33,6 +43,8 @@ var ICO = {
 function tarjetaH(p) {
   var bg = 'background:' + p.grad + (p.foto ? ';background-image:url("'+p.foto+'");background-size:cover;background-position:center' : '');
   var usd = Math.round(p.precio / 60);
+  /* BUG2 FIX — encoder le message */
+  var msgH = encodeURIComponent('¡Hola! Vi '+p.titulo+' en CasaRD. ¿Sigue disponible? 🏠🇩🇴');
   return '<div class="hcard" onclick="ir(\'detalle\',{id:\''+p.id+'\'})">'
     +'<div class="hcard-img" style="'+bg+'">'
     +(p.foto ? '' : '<span style="font-size:2.6rem;opacity:.7">'+p.emoji+'</span>')
@@ -55,8 +67,9 @@ function tarjetaH(p) {
 
 function tarjetaV(p) {
   var bg  = 'background:'+p.grad+(p.foto?';background-image:url("'+p.foto+'");background-size:cover;background-position:center':'');
-  var msg = '¡Hola! Vi '+p.titulo+' en CasaRD ('+precio(p.precio)+'/mes en '+p.ciudad+'). ¿Sigue disponible? 🏠🇩🇴';
   var usd = Math.round(p.precio / 60);
+  /* BUG2 FIX — encoder le message pour éviter que apostrophes cassent onclick */
+  var msg = encodeURIComponent('¡Hola! Vi '+p.titulo+' en CasaRD ('+precio(p.precio)+'/mes en '+p.ciudad+'). ¿Sigue disponible? 🏠🇩🇴');
   return '<div class="vcard" onclick="ir(\'detalle\',{id:\''+p.id+'\'})">'
     +'<div class="vcard-img" style="'+bg+'">'
     +(p.foto ? '' : '<span style="font-size:3.5rem;opacity:.65">'+p.emoji+'</span>')
@@ -80,7 +93,7 @@ function tarjetaV(p) {
     +'<span class="price">'+precio(p.precio)+'<small>/mes</small></span>'
     +'<span class="price-usd"> ≈ $'+usd+'</span>'
     +'</div>'
-    +'<button class="btn btn-wa btn-sm" onclick="event.stopPropagation();wa(\''+p.wa+'\',\''+msg.replace(/'/g,"\\'")+'\')">'
+    +'<button class="btn btn-wa btn-sm" onclick="event.stopPropagation();waEncoded(\''+p.wa+'\',\''+msg+'\')">'
     +ICO.wa+' WhatsApp'
     +'</button>'
     +'</div></div></div>';
@@ -539,17 +552,6 @@ function pagPerfil() {
    P12 — Nuevo aviso      (formulario publicar)
 ══════════════════════════════════════════════════════════ */
 
-/* ── Iconos adicionales para avisos ── */
-ICO.eye      = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-ICO.chat2    = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
-ICO.like     = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>';
-ICO.share    = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
-ICO.flag     = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>';
-ICO.img      = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-ICO.search2  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
-ICO.plus2    = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
-ICO.megafono = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>';
-
 /* ── Datos demo de avisos ── */
 var AVISOS_DEMO = [
   {
@@ -670,8 +672,12 @@ function colorTipoAviso(tipo) {
 
 /* ── Tarjeta aviso (feed) ── */
 function tarjetaAviso(a) {
-  var c   = colorTipoAviso(a.tipo);
-  var ini = iniciales(a.autor);
+  var c    = colorTipoAviso(a.tipo);
+  var ini  = iniciales(a.autor);
+  /* BUG1+6 FIX — couleur avatar fixe par type, pas de parsing grad */
+  var avBg = a.tipo === 'visto'
+    ? 'linear-gradient(135deg,#10B981,#059669)'
+    : 'linear-gradient(135deg,#1B4F8A,#2563EB)';
   return '<div style="background:white;border-radius:20px;border:1px solid #DDE5F0;margin-bottom:12px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .2s" onclick="ir(\'detalleAviso\',{id:\''+a.id+'\'})" onmouseenter="this.style.boxShadow=\'0 6px 24px rgba(11,30,56,.10)\'" onmouseleave="this.style.boxShadow=\'\'">'
     /* Foto si existe */
     +(a.foto
@@ -682,7 +688,7 @@ function tarjetaAviso(a) {
     +'<div style="padding:14px 16px">'
     /* Header autor */
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
-    +'<div class="av av-sm" style="background:'+a.grad.replace('linear-gradient(135deg,','').split(',')[0]+',#E8A020)">'+ini+'</div>'
+    +'<div class="av av-sm" style="background:'+avBg+'">'+ini+'</div>'
     +'<div style="flex:1">'
     +'<p style="font-weight:700;font-size:.78rem;color:#0B1E38">'+a.autor+'</p>'
     +'<p style="font-size:.62rem;color:#94A3B8;display:flex;align-items:center;gap:4px">'+ICO.pin+' '+a.barrio+' · '+a.hora+'</p>'
@@ -803,6 +809,10 @@ function pagDetalleAviso(p) {
   var comms = (S.comentarios && S.comentarios[a.id]) || COMENTARIOS_DEMO[a.id] || [];
   var c     = colorTipoAviso(a.tipo);
   var ini   = iniciales(a.autor);
+  /* BUG1+6 FIX — couleur avatar fixe */
+  var avBg  = a.tipo === 'visto'
+    ? 'linear-gradient(135deg,#10B981,#059669)'
+    : 'linear-gradient(135deg,#1B4F8A,#2563EB)';
 
   return '<div style="background:#F0F4FA;padding-bottom:90px">'
     /* ── BACK HEADER ── */
@@ -822,7 +832,7 @@ function pagDetalleAviso(p) {
     +'<span style="display:inline-flex;align-items:center;gap:5px;background:'+c.bg+';color:'+c.txt+';font-size:.6rem;font-weight:800;padding:5px 12px;border-radius:8px;border:1px solid '+c.bdr+';margin-bottom:12px;letter-spacing:.03em">'+c.label+'</span>'
     /* Autor */
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
-    +'<div class="av av-md" style="background:'+a.grad.replace('linear-gradient(135deg,','').split(',')[0]+',#E8A020)">'+ini+'</div>'
+    +'<div class="av av-md" style="background:'+avBg+'">'+ini+'</div>'
     +'<div>'
     +'<p style="font-weight:700;font-size:.82rem;color:#0B1E38">'+a.autor+'</p>'
     +'<p style="font-size:.64rem;color:#94A3B8;display:flex;align-items:center;gap:4px">'+ICO.pin+' '+a.barrio+', '+a.ciudad+' &nbsp;·&nbsp; '+a.hora+'</p>'
@@ -929,7 +939,7 @@ function pagNuevoAviso() {
     +'<div class="fgroup"><label class="flabel">Foto (opcional pero recomendada)</label>'
     +'<div id="av-foto-prev" style="margin-bottom:8px;min-height:4px"></div>'
     +'<label style="display:flex;align-items:center;justify-content:center;gap:10px;border:2px dashed #DDE5F0;border-radius:16px;padding:16px;cursor:pointer;background:white;font-size:.8rem;color:#94A3B8;transition:border-color .2s" onmouseenter="this.style.borderColor=\'#1B4F8A\'" onmouseleave="this.style.borderColor=\'#DDE5F0\'">'
-    +ICO.img+' Agregar foto del letrero o la propiedad'
+    +ICO.imgico+' Agregar foto del letrero o la propiedad'
     +'<input type="file" id="av-foto-input" accept="image/*" style="display:none" onchange="prevAviso(this)"/>'
     +'</label></div>'
 
@@ -944,4 +954,4 @@ function pagNuevoAviso() {
     +'</button>'
     +'<button class="btn btn-ghost" style="margin-top:10px" onclick="ir(\'avisos\')">Cancelar</button>'
     +'</div></div>';
-     }
+                                   }
